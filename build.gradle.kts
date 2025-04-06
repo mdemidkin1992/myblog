@@ -24,6 +24,7 @@ dependencies {
     testImplementation(libs.junitJupiterApi)
     testImplementation(libs.hamcrest)
     testImplementation(libs.jaywayJsonPath)
+    testImplementation(libs.mockitoJunit)
 
     testCompileOnly(libs.lombok)
     testAnnotationProcessor(libs.lombok)

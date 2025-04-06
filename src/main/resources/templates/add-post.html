@@ -7,7 +7,7 @@
 
 <body>
 <a href="/posts" style="float:right;">
-    <b>НА ГЛАВНУЮ &cudarrr;</b>
+    <b>НА ГЛАВНУЮ &amp;cudarrr;</b>
 </a>
 
 <form method="POST" th:if="${post == null}" th:action="@{/posts}" enctype="multipart/form-data">
@@ -21,7 +21,7 @@
         <tr>
             <td>
                 <h3>Изображение</h3>
-                <input type="file" name="image">
+                <input type="file" name="image"/>
             </td>
         </tr>
         <tr>
@@ -55,13 +55,13 @@
         <tr>
             <td>
                 <h3>Изображение</h3>
-                <input type="file" name="image">
+                <input type="file" name="image"/>
             </td>
         </tr>
         <tr>
             <td>
                 <h3>Теги</h3>
-                <textarea rows="2" style="width: 100%;" name="tags" th:text="${post.tagsAsText}"></textarea>
+                <textarea rows="2" style="width: 100%;" name="tags" th:text="${post.tags}"></textarea>
             </td>
         </tr>
         <tr>
@@ -78,3 +78,4 @@
     </table>
 </form>
 </body>
+</html>

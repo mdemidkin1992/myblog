@@ -45,13 +45,17 @@ public class PostController {
     }
 
     @PostMapping("/posts")
-    public String addPost(@ModelAttribute Post post) {
-        postService.createPost(post);
+    public String addPost(
+            @RequestParam("title") String title,
+            @RequestParam("text") String text,
+            @RequestParam("tags") String tags,
+            @RequestParam("image") MultipartFile image) {
+        Post post = postService.createPost(title, text, image, tags);
         return "redirect:/posts/" + post.getId();
     }
 
     @GetMapping("/posts")
-    public String getAllPosts(
+    public String getPosts(
             @RequestParam(name = "search", required = false, defaultValue = "") String search,
             @RequestParam(name = "pageSize", required = false, defaultValue = "10") int pageSize,
             @RequestParam(name = "pageNumber", required = false, defaultValue = "1") int pageNumber,

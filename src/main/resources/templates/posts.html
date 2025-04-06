@@ -15,7 +15,7 @@
             <form>
                 <p>
                     <label for="search">Найти по тегу: </label>
-                    <input id="search" style="width:300px;" name="search" th:value="${search}">
+                    <input id="search" style="width:300px;" name="search" th:value="${search}"/>
                     <button name="action">&#128269;</button>
                 </p>
                 <p>
@@ -41,10 +41,10 @@
             <h2 th:text="${post.title}"></h2>
             <p>
                 <a th:href="@{/posts/{id}(id=${post.id})}">
-                    <img height="300" th:src="@{http://localhost:8080/images/{id}(id=${post.id})}">
+                    <img height="300" th:src="@{/images/{id}(id=${post.id})}"/>
                 </a>
             </p>
-            <p th:text="${post.textPreview}"></p>
+            <p th:text="${post.text}"></p>
             <p>
                 <span th:utext="'&#x1F44D; ' + ${post.likesCount}"></span>
                 <span th:utext="'&#x2709; ' + ${post.comments.size()}"></span>
@@ -56,3 +56,4 @@
     </tr>
 </table>
 </body>
+</html>
