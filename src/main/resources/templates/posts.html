@@ -44,7 +44,7 @@
                     <img height="300" th:src="@{/images/{id}(id=${post.id})}"/>
                 </a>
             </p>
-            <p th:text="${post.text}"></p>
+            <p th:text="${post.textPreview}"></p>
             <p>
                 <span th:utext="'&#x1F44D; ' + ${post.likesCount}"></span>
                 <span th:utext="'&#x2709; ' + ${post.comments.size()}"></span>

@@ -14,6 +14,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
+import ru.mdemidkin.controller.dto.PostFullDto;
+import ru.mdemidkin.controller.dto.PostPreviewDto;
+import ru.mdemidkin.mapper.PostMapper;
 import ru.mdemidkin.model.Paging;
 import ru.mdemidkin.model.Post;
 import ru.mdemidkin.service.api.PostService;
@@ -26,6 +29,7 @@ import java.util.List;
 public class PostController {
 
     private final PostService postService;
+    private final PostMapper postMapper;
 
     @GetMapping("/")
     public String redirectToMainPage() {
@@ -34,8 +38,9 @@ public class PostController {
 
     @GetMapping("/posts/{id}")
     public String getPost(@PathVariable(name = "id") Long id, Model model) {
-        Post post = postService.getPostById(id);
-        model.addAttribute("post", post);
+        Post postModel = postService.getPostById(id);
+        PostFullDto dto = postMapper.mapToPostFullDto(postModel);
+        model.addAttribute("post", dto);
         return "post";
     }
 
@@ -62,9 +67,10 @@ public class PostController {
             Model model) {
 
         List<Post> posts = postService.getPosts(search, pageSize, pageNumber);
+        List<PostPreviewDto> dtos = postMapper.mapTopPostPreviewDtoList(posts);
         Paging paging = postService.getPaging(search, pageSize, pageNumber);
 
-        model.addAttribute("posts", posts);
+        model.addAttribute("posts", dtos);
         model.addAttribute("search", search);
         model.addAttribute("paging", paging);
 
@@ -81,8 +87,9 @@ public class PostController {
 
     @GetMapping("/posts/{id}/edit")
     public String showEditPostForm(@PathVariable(name = "id") Long id, Model model) {
-        Post post = postService.getPostById(id);
-        model.addAttribute("post", post);
+        Post postModel = postService.getPostById(id);
+        PostFullDto dto = postMapper.mapToPostFullDto(postModel);
+        model.addAttribute("post", dto);
         return "add-post";
     }
 
@@ -95,6 +102,15 @@ public class PostController {
             @RequestParam(name = "tags", required = false, defaultValue = "") String tags) {
 
         postService.updatePost(id, title, text, image, tags);
+        return "redirect:/posts/" + id;
+    }
+
+    @PostMapping("/posts/{id}/like")
+    public String likePost(
+            @PathVariable(name = "id") Long id,
+            @RequestParam(name = "like") boolean like) {
+
+        postService.updateLikes(id, like);
         return "redirect:/posts/" + id;
     }
 
