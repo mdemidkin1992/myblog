@@ -9,10 +9,10 @@ import ru.mdemidkin.model.Comment;
 import ru.mdemidkin.repository.impl.CommentRepositoryImpl;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @JdbcTest
@@ -32,7 +32,7 @@ class CommentRepositoryIntegrationTest {
         Comment saved = commentRepository.save(comment);
         assertNotNull(saved.getId());
 
-        Comment found = commentRepository.findById(saved.getId());
+        Comment found = commentRepository.findById(saved.getId()).get();
         assertNotNull(found);
         assertEquals("Первый комментарий", found.getText());
         assertEquals(1L, found.getPostId());
@@ -48,7 +48,7 @@ class CommentRepositoryIntegrationTest {
         saved.setText("Обновленный комментарий");
         Comment updated = commentRepository.save(saved);
 
-        Comment found = commentRepository.findById(updated.getId());
+        Comment found = commentRepository.findById(updated.getId()).get();
         assertEquals("Обновленный комментарий", found.getText());
     }
 
@@ -78,10 +78,10 @@ class CommentRepositoryIntegrationTest {
         Long id = saved.getId();
 
         commentRepository.deleteById(id);
-        Comment found = commentRepository.findById(id);
+        Optional<Comment> found = commentRepository.findById(id);
 
         assertNotNull(id);
-        assertNull(found);
+        assertTrue(found.isEmpty());
     }
 
     @Test

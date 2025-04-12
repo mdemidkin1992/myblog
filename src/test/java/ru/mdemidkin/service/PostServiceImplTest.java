@@ -233,7 +233,7 @@ public class PostServiceImplTest {
     void updateComment_shouldUpdateComment() {
         Comment comment = Comment.builder().id(1L).postId(1L).text("текст").build();
 
-        when(commentRepository.findById(1L)).thenReturn(comment);
+        when(commentRepository.findById(1L)).thenReturn(Optional.of(comment));
         when(commentRepository.save(any(Comment.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         postService.updateComment(1L, 1L, "новый коммент");
@@ -245,7 +245,7 @@ public class PostServiceImplTest {
     void deleteComment_shouldDeleteComment() {
         Comment comment = Comment.builder().id(1L).postId(1L).build();
 
-        when(commentRepository.findById(1L)).thenReturn(comment);
+        when(commentRepository.findById(1L)).thenReturn(Optional.of(comment));
 
         postService.deleteComment(1L, 1L);
         verify(commentRepository).deleteById(1L);

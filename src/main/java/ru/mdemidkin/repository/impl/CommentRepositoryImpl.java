@@ -13,6 +13,7 @@ import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import static ru.mdemidkin.mapper.RawMapper.commentRowMapper;
 
@@ -29,9 +30,9 @@ public class CommentRepositoryImpl extends BaseRepository implements CommentRepo
     }
 
     @Override
-    public Comment findById(Long id) {
+    public Optional<Comment> findById(Long id) {
         List<Comment> comments = jdbcTemplate.query(SqlUtils.FIND_COMMENT_BY_ID, commentRowMapper, id);
-        return comments.isEmpty() ? null : comments.getFirst();
+        return comments.isEmpty() ? Optional.empty() : Optional.ofNullable(comments.getFirst());
     }
 
     @Override
