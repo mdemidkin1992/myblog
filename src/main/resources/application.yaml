@@ -1,0 +1,27 @@
+spring:
+  sql:
+    init:
+      mode: always
+  datasource:
+    url: "jdbc:h2:file:./db/myblog;AUTO_SERVER=TRUE"
+    driverClassName: org.h2.Driver
+    username: sa
+    password: password
+  h2:
+    console:
+      enabled: true
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+logging:
+  level:
+    ru.yandex.practicum: debug
+    org.springframework.web.servlet.DispatcherServlet: debug
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"

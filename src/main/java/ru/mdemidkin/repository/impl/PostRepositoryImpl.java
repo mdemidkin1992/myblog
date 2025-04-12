@@ -1,15 +1,16 @@
 package ru.mdemidkin.repository.impl;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.mdemidkin.model.Comment;
 import ru.mdemidkin.model.Post;
+import ru.mdemidkin.repository.BaseRepository;
 import ru.mdemidkin.repository.api.CommentRepository;
 import ru.mdemidkin.repository.api.PostRepository;
 import ru.mdemidkin.repository.api.TagRepository;
+import ru.mdemidkin.utils.SqlUtils;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
@@ -21,17 +22,22 @@ import java.util.Set;
 import static ru.mdemidkin.mapper.RawMapper.postRowMapper;
 
 @Repository
-@RequiredArgsConstructor
-public class PostRepositoryImpl implements PostRepository {
+public class PostRepositoryImpl extends BaseRepository implements PostRepository {
 
-    private final JdbcTemplate jdbcTemplate;
     private final CommentRepository commentRepository;
     private final TagRepository tagRepository;
 
+    public PostRepositoryImpl(JdbcTemplate jdbcTemplate,
+                              CommentRepository commentRepository,
+                              TagRepository tagRepository) {
+        super(jdbcTemplate);
+        this.commentRepository = commentRepository;
+        this.tagRepository = tagRepository;
+    }
+
     @Override
     public Optional<Post> findById(Long id) {
-        String sql = "SELECT * FROM posts WHERE id = ?";
-        List<Post> posts = jdbcTemplate.query(sql, postRowMapper, id);
+        List<Post> posts = jdbcTemplate.query(SqlUtils.FIND_POST_BY_ID, postRowMapper, id);
 
         if (posts.isEmpty()) {
             return Optional.empty();
@@ -56,14 +62,10 @@ public class PostRepositoryImpl implements PostRepository {
         Object[] params;
 
         if (search != null && !search.isEmpty()) {
-            sql = "SELECT DISTINCT p.* FROM posts p " +
-                    "JOIN post_tags pt ON p.id = pt.post_id " +
-                    "JOIN tags t ON pt.tag_id = t.id " +
-                    "WHERE t.name = ? " +
-                    "ORDER BY p.id DESC LIMIT ? OFFSET ?";
+            sql = SqlUtils.FIND_POSTS_BY_SEARCH;
             params = new Object[]{search, pageSize, offset};
         } else {
-            sql = "SELECT * FROM posts ORDER BY id DESC LIMIT ? OFFSET ?";
+            sql = SqlUtils.FIND_POSTS;
             params = new Object[]{pageSize, offset};
         }
 
@@ -86,13 +88,10 @@ public class PostRepositoryImpl implements PostRepository {
         Object[] params;
 
         if (search != null && !search.isEmpty()) {
-            sql = "SELECT COUNT(DISTINCT p.id) FROM posts p " +
-                    "JOIN post_tags pt ON p.id = pt.post_id " +
-                    "JOIN tags t ON pt.tag_id = t.id " +
-                    "WHERE t.name = ?";
+            sql = SqlUtils.COUNT_POSTS_BY_SEARCH;
             params = new Object[]{search};
         } else {
-            sql = "SELECT COUNT(*) FROM posts";
+            sql = SqlUtils.COUNT_POSTS;
             params = new Object[]{};
         }
 
@@ -112,7 +111,7 @@ public class PostRepositoryImpl implements PostRepository {
     public void deleteById(Long id) {
         commentRepository.deleteByPostId(id);
         tagRepository.deleteByPostId(id);
-        jdbcTemplate.update("DELETE FROM posts WHERE id = ?", id);
+        jdbcTemplate.update(SqlUtils.DELETE_POST_BY_ID, id);
     }
 
     private Post insert(Post post) {
@@ -120,7 +119,7 @@ public class PostRepositoryImpl implements PostRepository {
 
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection.prepareStatement(
-                    "INSERT INTO posts (title, text, image_data, likes_count) VALUES (?, ?, ?, ?)",
+                    SqlUtils.INSERT_POST,
                     Statement.RETURN_GENERATED_KEYS
             );
             ps.setString(1, post.getTitle());
@@ -139,7 +138,7 @@ public class PostRepositoryImpl implements PostRepository {
 
     private Post update(Post post) {
         jdbcTemplate.update(
-                "UPDATE posts SET title = ?, text = ?, image_data = ?, likes_count = ? WHERE id = ?",
+                SqlUtils.UPDATE_POST,
                 post.getTitle(),
                 post.getText(),
                 post.getImageData(),
