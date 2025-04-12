@@ -2,12 +2,10 @@ package ru.mdemidkin.repository;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
-import ru.mdemidkin.config.DataSourceConfiguration;
+import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.context.jdbc.Sql;
 import ru.mdemidkin.model.Post;
-import ru.mdemidkin.repository.api.PostRepository;
 import ru.mdemidkin.repository.impl.CommentRepositoryImpl;
 import ru.mdemidkin.repository.impl.PostRepositoryImpl;
 import ru.mdemidkin.repository.impl.TagRepositoryImpl;
@@ -24,17 +22,13 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@SpringJUnitConfig(classes = {
-        DataSourceConfiguration.class,
-        PostRepositoryImpl.class,
-        CommentRepositoryImpl.class,
-        TagRepositoryImpl.class})
-@TestPropertySource(locations = "classpath:test-application.properties")
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+@JdbcTest
+@Sql({"/schema-test.sql", "/data-test.sql"})
+@Import({PostRepositoryImpl.class, CommentRepositoryImpl.class, TagRepositoryImpl.class})
 class PostRepositoryIntegrationTest {
 
     @Autowired
-    private PostRepository postRepository;
+    private PostRepositoryImpl postRepository;
 
     @Test
     void testInsertAndFindById() {

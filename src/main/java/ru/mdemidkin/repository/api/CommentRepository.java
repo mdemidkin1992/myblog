@@ -3,6 +3,7 @@ package ru.mdemidkin.repository.api;
 import ru.mdemidkin.model.Comment;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface CommentRepository {
 
@@ -10,7 +11,7 @@ public interface CommentRepository {
 
     Comment save(Comment comment);
 
-    Comment findById(Long id);
+    Optional<Comment> findById(Long id);
 
     void deleteById(Long id);
 

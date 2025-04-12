@@ -17,7 +17,7 @@ import ru.mdemidkin.service.api.PostService;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -115,8 +115,9 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public void updateComment(Long postId, Long commentId, String text) {
-        Comment comment = commentRepository.findById(commentId);
-        if (comment != null && comment.getPostId().equals(postId)) {
+        Optional<Comment> optional = commentRepository.findById(commentId);
+        if (optional.isPresent() && optional.get().getPostId().equals(postId)) {
+            Comment comment = optional.get();
             comment.setText(text);
             commentRepository.save(comment);
         }
@@ -124,8 +125,8 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public void deleteComment(Long postId, Long commentId) {
-        Comment comment = commentRepository.findById(commentId);
-        if (comment != null && comment.getPostId().equals(postId)) {
+        Optional<Comment> optional = commentRepository.findById(commentId);
+        if (optional.isPresent() && optional.get().getPostId().equals(postId)) {
             commentRepository.deleteById(commentId);
         }
     }
