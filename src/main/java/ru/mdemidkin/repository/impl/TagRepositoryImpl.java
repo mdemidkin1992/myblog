@@ -1,11 +1,12 @@
 package ru.mdemidkin.repository.impl;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
+import ru.mdemidkin.repository.BaseRepository;
 import ru.mdemidkin.repository.api.TagRepository;
+import ru.mdemidkin.utils.SqlUtils;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
@@ -15,24 +16,21 @@ import java.util.Objects;
 import java.util.Set;
 
 @Repository
-@RequiredArgsConstructor
-public class TagRepositoryImpl implements TagRepository {
+public class TagRepositoryImpl extends BaseRepository implements TagRepository {
 
-    private final JdbcTemplate jdbcTemplate;
+    public TagRepositoryImpl(JdbcTemplate jdbcTemplate) {
+        super(jdbcTemplate);
+    }
 
     @Override
     public Set<String> findByPostId(Long postId) {
-        String sql = "SELECT t.name FROM tags t " +
-                "JOIN post_tags pt ON t.id = pt.tag_id " +
-                "WHERE pt.post_id = ?";
-
-        List<String> tags = jdbcTemplate.queryForList(sql, String.class, postId);
+        List<String> tags = jdbcTemplate.queryForList(SqlUtils.FIND_TAG_BY_POST_ID, String.class, postId);
         return new HashSet<>(tags);
     }
 
     @Override
     public Long findOrCreateTag(String name) {
-        String findSql = "SELECT id FROM tags WHERE name = ?";
+        String findSql = SqlUtils.FIND_TAGS_BY_NAME;
         List<Long> ids = jdbcTemplate.queryForList(findSql, Long.class, name);
 
         if (!ids.isEmpty()) {
@@ -44,21 +42,21 @@ public class TagRepositoryImpl implements TagRepository {
     @Override
     public void linkTagToPost(Long postId, Long tagId) {
         jdbcTemplate.update(
-                "INSERT INTO post_tags (post_id, tag_id) VALUES (?, ?)",
+                SqlUtils.LINK_POST_TO_TAG,
                 postId, tagId
         );
     }
 
     @Override
     public void deleteByPostId(Long postId) {
-        jdbcTemplate.update("DELETE FROM post_tags WHERE post_id = ?", postId);
+        jdbcTemplate.update(SqlUtils.DELETE_TAG_BY_POST_ID, postId);
     }
 
     private Long createNewTag(String name) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection.prepareStatement(
-                    "INSERT INTO tags (name) VALUES (?)",
+                    SqlUtils.INSERT_TAG,
                     Statement.RETURN_GENERATED_KEYS
             );
             ps.setString(1, name);
